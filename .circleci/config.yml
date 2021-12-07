@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: raoakarsha/hello-world
+      - image: fabiogallotti/tutorial_ci
     steps:
       - checkout
       - run:
