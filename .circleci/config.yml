@@ -1,12 +1,30 @@
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-# Orchestrate or schedule a set of jobs
+jobs:
+  test:
+    docker:
+      - image: raoakarsha/hello-world
+    steps:
+      - checkout
+      - run:
+         name: Setup Code Climate test-reporter
+         command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
+      - run:
+          name: Run tests
+          command: |
+            python -m pytest --cov-report xml --cov-report term --cov .
+      - run:
+          name: Send coverage to Code Climate
+          command: |
+            ./cc-test-reporter after-build --exit-code $?
+      - run:
+          name: Send to codecov
+          command: |
+            bash <(curl -s https://codecov.io/bash) -Z
 workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
+  test:
     jobs:
-      - welcome/run
+      - test
